@@ -1,0 +1,103 @@
+package tsp.coex.command.argument.parser;
+
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.Duration;
+import java.util.*;
+
+/**
+ * @author TheSilentPro (Silent)
+ */
+@SuppressWarnings({"unchecked", "rawtypes"})
+public final class ArgumentParsers {
+
+    /**
+     * Singleton instance used for accessing the global {@link ArgumentParsers}.
+     */
+    public static final ArgumentParsers INSTANCE = new ArgumentParsers();
+
+    private final Map<Class<?>, List<ArgumentParser<?>>> parsers = new HashMap<>();
+
+    @SuppressWarnings("deprecation")
+    private ArgumentParsers() {
+        register(String.class, Optional::of);
+        register(Number.class, NumbersParser::parse);
+        register(Integer.class, NumbersParser::parseInteger);
+        register(Long.class, NumbersParser::parseLong);
+        register(Float.class, NumbersParser::parseFloat);
+        register(Double.class, NumbersParser::parseDouble);
+        register(Byte.class, NumbersParser::parseByte);
+        register(Boolean.class, s -> {
+            if (s.equalsIgnoreCase("true") || s.equalsIgnoreCase("yes") || s.equalsIgnoreCase("on")) {
+                return Optional.of(true);
+            } else if (s.equalsIgnoreCase("false") || s.equalsIgnoreCase("No") || s.equalsIgnoreCase("off")) {
+                return Optional.of(false);
+            } else {
+                return Optional.empty();
+            }
+        });
+        register(UUID.class, s -> {
+            try {
+                return Optional.of(UUID.fromString(s));
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
+            }
+        });
+        register(Player.class, s -> {
+            try {
+                return Optional.ofNullable(Bukkit.getPlayer(UUID.fromString(s)));
+            } catch (IllegalArgumentException e) {
+                return Optional.ofNullable(Bukkit.getPlayer(s));
+            }
+        });
+        register(OfflinePlayer.class, s -> {
+            try {
+                return Optional.of(Bukkit.getOfflinePlayer(UUID.fromString(s)));
+            } catch (IllegalArgumentException e) {
+                return Optional.of(Bukkit.getOfflinePlayer(s));
+            }
+        });
+        register(World.class, s -> Optional.ofNullable(Bukkit.getWorld(s)));
+        register(Duration.class, DurationParser::parseSafely);
+    }
+
+    @NotNull
+    public <T> Optional<ArgumentParser<T>> find(@NotNull Class<T> type) {
+        List<ArgumentParser<?>> parsers = this.parsers.get(type);
+        if (parsers == null || parsers.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of((ArgumentParser<T>) parsers.get(0));
+    }
+
+    @NotNull
+    public <T> Collection<ArgumentParser<T>> findAll(@NotNull Class<T> type) {
+        List<ArgumentParser<?>> parsers = this.parsers.get(type);
+        if (parsers == null || parsers.isEmpty()) {
+            return List.of();
+        }
+
+        return (Collection) Collections.unmodifiableList(parsers);
+    }
+
+    /**
+     * Register a new {@link ArgumentParser} with the class type.
+     *
+     * @param type The class type for the parser
+     * @param parser The parser
+     * @param <T> The type
+     */
+    public <T> void register(@NotNull Class<T> type, @NotNull ArgumentParser<T> parser) {
+        List<ArgumentParser<?>> list = this.parsers.computeIfAbsent(type, t -> new ArrayList<>());
+        if (!list.contains(parser)) {
+            list.add(parser);
+        }
+    }
+
+}
