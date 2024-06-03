@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author TheSilentPro (Silent)
@@ -16,7 +17,11 @@ public final class NumbersParser {
     }
 
     @Nonnull
-    public static Optional<Number> parse(@Nonnull String s) {
+    public static Optional<Number> parse(@Nullable String s) {
+        if (s == null) {
+            return Optional.empty();
+        }
+
         try {
             return Optional.ofNullable(NumberFormat.getInstance().parse(s));
         } catch (ParseException e) {
@@ -25,7 +30,11 @@ public final class NumbersParser {
     }
 
     @Nonnull
-    public static Optional<Integer> parseInteger(@Nonnull String s) {
+    public static Optional<Integer> parseInteger(@Nullable String s) {
+        if (s == null) {
+            return Optional.empty();
+        }
+
         try {
             return Optional.of(Integer.parseInt(s));
         } catch (NumberFormatException e) {
@@ -34,7 +43,11 @@ public final class NumbersParser {
     }
 
     @Nonnull
-    public static Optional<Long> parseLong(@Nonnull String s) {
+    public static Optional<Long> parseLong(@Nullable String s) {
+        if (s == null) {
+            return Optional.empty();
+        }
+
         try {
             return Optional.of(Long.parseLong(s));
         } catch (NumberFormatException e) {
@@ -43,7 +56,11 @@ public final class NumbersParser {
     }
 
     @Nonnull
-    public static Optional<Float> parseFloat(@Nonnull String s) {
+    public static Optional<Float> parseFloat(@Nullable String s) {
+        if (s == null) {
+            return Optional.empty();
+        }
+
         try {
             return Optional.of(Float.parseFloat(s));
         } catch (NumberFormatException e) {
@@ -52,7 +69,11 @@ public final class NumbersParser {
     }
 
     @Nonnull
-    public static Optional<Double> parseDouble(@Nonnull String s) {
+    public static Optional<Double> parseDouble(@Nullable String s) {
+        if (s == null) {
+            return Optional.empty();
+        }
+
         try {
             return Optional.of(Double.parseDouble(s));
         } catch (NumberFormatException e) {
@@ -61,7 +82,11 @@ public final class NumbersParser {
     }
 
     @Nonnull
-    public static Optional<Byte> parseByte(@Nonnull String s) {
+    public static Optional<Byte> parseByte(@Nullable String s) {
+        if (s == null) {
+            return Optional.empty();
+        }
+
         try {
             return Optional.of(Byte.parseByte(s));
         } catch (NumberFormatException e) {

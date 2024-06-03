@@ -1,5 +1,6 @@
 package tsp.coex.command.context;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
@@ -8,15 +9,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tsp.coex.command.Command;
 import tsp.coex.command.argument.Argument;
+import tsp.coex.command.argument.parser.ArgumentParsers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * @author TheSilentPro (Silent)
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "OptionalIsPresent"})
 public interface CommandContext<T extends CommandSender> {
 
     /**
@@ -224,6 +227,40 @@ public interface CommandContext<T extends CommandSender> {
      */
     default CommandContext<Player> assertPlayer() {
         return assertPlayer(null);
+    }
+
+    /**
+     * Assert that an argument is of a specific type, otherwise send a message.
+     *
+     * @param index The argument index
+     * @param type The argument type
+     * @param message The message to send if type does not match
+     * @return Context
+     */
+    default CommandContext<T> assertArgument(int index, @NotNull Class<?> type, @NotNull String message) {
+        return assertion(
+                ArgumentParsers.INSTANCE.find(type)
+                        .orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type))
+                        .parse(rawArg(index).orElse("")).isPresent(),
+                message
+        );
+    }
+
+    /**
+     * Assert that an argument is of a specific type, otherwise send a message.
+     *
+     * @param index The argument index
+     * @param type The argument type
+     * @return Context
+     */
+    default CommandContext<T> assertArgument(int index, @NotNull Class<?> type) {
+        Optional<String> arg = rawArg(index);
+        return assertion(
+                ArgumentParsers.INSTANCE.find(type)
+                        .orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type))
+                        .parse(arg.orElse("")).isPresent(), // Parsers are expected to handle empty strings as a failure.
+                ChatColor.RED + "Invalid or missing argument at position " + index + (arg.isPresent() ? ": " + ChatColor.YELLOW + arg.get() : "!")
+        );
     }
 
 }

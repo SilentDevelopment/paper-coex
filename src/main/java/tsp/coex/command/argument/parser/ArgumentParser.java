@@ -1,13 +1,13 @@
 package tsp.coex.command.argument.parser;
 
 import org.jetbrains.annotations.NotNull;
-import tsp.coex.CommandInterruptException;
 import tsp.coex.command.argument.Argument;
 
 import java.util.Optional;
 
 /**
  * Represents a parser for an {@link Argument}.
+ * <bold>Note: that parsers should fail when an empty string is provided!</bold>
  *
  * @author TheSilentPro (Silent)
  */
@@ -28,12 +28,8 @@ public interface ArgumentParser<T> {
      * @return The parsed argument
      */
     @NotNull
-    default T parseOrFail(@NotNull String s) throws CommandInterruptException {
-        Optional<T> ret = parse(s);
-        if (ret.isEmpty()) {
-            throw new CommandInterruptException("&cCould not parse argument: " + s);
-        }
-        return ret.get();
+    default T parseOrFail(@NotNull String s) throws IllegalArgumentException {
+        return parse(s).orElseThrow(() -> new IllegalArgumentException("&cArgument " + s + " is missing."));
     }
 
     /**
@@ -54,12 +50,8 @@ public interface ArgumentParser<T> {
      * @return The parsed argument
      */
     @NotNull
-    default T parseOrFail(@NotNull Argument argument) throws CommandInterruptException {
-        Optional<String> value = argument.value();
-        if (value.isEmpty()) {
-            throw new CommandInterruptException("&cArgument " + argument.index() + " is missing.");
-        }
-        return parseOrFail(value.get());
+    default T parseOrFail(@NotNull Argument argument) throws IllegalArgumentException {
+        return parseOrFail(argument.value().orElseThrow(() -> new IllegalArgumentException("&cArgument " + argument.index() + " is missing.")));
     }
 
 }

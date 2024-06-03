@@ -105,7 +105,7 @@ public abstract class AbstractCommand implements Command {
 
             int required = 0;
             for (String part : parts) {
-                if (!part.startsWith("[") && !part.endsWith("]")) { // Even if it doesnt have arrow brackets("<>"), assume the argument is required.
+                if (!part.startsWith("[") && !part.endsWith("]")) { // Even if it doesn't have arrow brackets("<>"), assume the argument is required.
                     required++;
                 }
             }
@@ -119,7 +119,9 @@ public abstract class AbstractCommand implements Command {
         // Fire command handler, ignore thrown exceptions
         try {
             handler(new CommandContextImpl<>(sender, args, this));
-        } catch (CommandInterruptException ignored) {}
+        } catch (CommandInterruptException ex) {
+            onAssertionFailure(ex);
+        }
         return true;
     }
 
@@ -134,6 +136,8 @@ public abstract class AbstractCommand implements Command {
     public List<String> onTab(CommandContext<CommandSender> ctx) {
         return null;
     }
+
+    public void onAssertionFailure(CommandInterruptException ex) {}
 
     @Override
     public void register(JavaPlugin plugin) {

@@ -3,7 +3,6 @@ package tsp.coex.command.argument.parser;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +10,9 @@ import java.time.Duration;
 import java.util.*;
 
 /**
+ * Represents the main instance for all {@link ArgumentParser parsers}.
+ * <bold>Note: that parsers should fail when an empty string is provided!</bold>
+ *
  * @author TheSilentPro (Silent)
  */
 @SuppressWarnings({"unchecked", "rawtypes"})

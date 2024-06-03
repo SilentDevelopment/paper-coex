@@ -9,8 +9,4 @@ public class CommandInterruptException extends RuntimeException {
         super("Command failed an assertion!");
     }
 
-    public CommandInterruptException(String message) {
-        super(message);
-    }
-
 }

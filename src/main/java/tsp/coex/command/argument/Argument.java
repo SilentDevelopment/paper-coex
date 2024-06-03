@@ -1,10 +1,10 @@
 package tsp.coex.command.argument;
 
 import org.jetbrains.annotations.NotNull;
-import tsp.coex.CommandInterruptException;
 import tsp.coex.command.argument.parser.ArgumentParser;
 import tsp.coex.command.argument.parser.ArgumentParsers;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -46,7 +46,7 @@ public interface Argument {
      * @return The parsed argument, if present
      * @param <T> The type of argument
      */
-    default <T> T parseOrFail(@NotNull ArgumentParser<T> parser) throws CommandInterruptException {
+    default <T> T parseOrFail(@NotNull ArgumentParser<T> parser) throws NoSuchElementException {
         return parser.parseOrFail(this);
     }
 
@@ -68,12 +68,8 @@ public interface Argument {
      * @return The parsed argument, if present
      * @param <T> The type of argument
      */
-    default <T> T parseOrFail(@NotNull Class<T> clazz) throws CommandInterruptException {
-        ArgumentParser<T> parser = ArgumentParsers.INSTANCE.find(clazz).orElse(null);
-        if (parser == null) {
-            throw new RuntimeException("Unable to find ArgumentParser for " + clazz);
-        }
-        return parseOrFail(parser);
+    default <T> T parseOrFail(@NotNull Class<T> clazz) throws NoSuchElementException {
+        return parseOrFail(ArgumentParsers.INSTANCE.find(clazz).orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + clazz)));
     }
 
 }
