@@ -1,6 +1,7 @@
 package tsp.coex.command.context;
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
@@ -95,7 +96,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message The message
      * @return Context
      */
-    CommandContext<T> reply(@NotNull String message);
+    CommandContext<T> reply(@NotNull Component message);
 
     // Checkers/Validators
 
@@ -109,12 +110,12 @@ public interface CommandContext<T extends CommandSender> {
 
     boolean isArgument(int index, @NotNull Class<?> type);
 
-    <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable String failureMessage);
+    <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable Component failureMessage);
 
-    <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable UnaryOperator<String> failureMessage);
+    <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable UnaryOperator<Component> failureMessage);
 
     default <U> U validateArgument(int index, @NotNull Class<U> type) {
-        return validateArgument(index, type, (String) null);
+        return validateArgument(index, type, (Component) null);
     }
 
     // Assertions
@@ -126,7 +127,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param failureMessage Message if assertion fails
      * @return Context
      */
-    CommandContext<T> assertion(boolean assertion, @Nullable String failureMessage);
+    CommandContext<T> assertion(boolean assertion, @Nullable Component failureMessage);
 
     /**
      * Assert an expression.
@@ -145,7 +146,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message The message
      * @return Context
      */
-    default CommandContext<T> assertSender(Object other, @Nullable String message) {
+    default CommandContext<T> assertSender(Object other, @Nullable Component message) {
         return assertion(sender().getClass().isInstance(other), message);
     }
 
@@ -166,7 +167,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message Message
      * @return Context
      */
-    default CommandContext<T> assertPermission(@NotNull String permission, @Nullable String message) {
+    default CommandContext<T> assertPermission(@NotNull String permission, @Nullable Component message) {
         return assertion(hasPermission(permission), message);
     }
 
@@ -187,7 +188,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message Message
      * @return Context
      */
-    default CommandContext<ConsoleCommandSender> assertConsole(@Nullable String message) {
+    default CommandContext<ConsoleCommandSender> assertConsole(@Nullable Component message) {
         return (CommandContext<ConsoleCommandSender>) assertion(isConsole(), message);
     }
 
@@ -206,7 +207,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message Message
      * @return Context
      */
-    default CommandContext<RemoteConsoleCommandSender> assertRemoteConsole(@Nullable String message) {
+    default CommandContext<RemoteConsoleCommandSender> assertRemoteConsole(@Nullable Component message) {
         return (CommandContext<RemoteConsoleCommandSender>) assertion(isConsole(), message);
     }
 
@@ -225,7 +226,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message Message
      * @return Context
      */
-    default CommandContext<Player> assertPlayer(@Nullable String message) {
+    default CommandContext<Player> assertPlayer(@Nullable Component message) {
         return (CommandContext<Player>) assertion(isPlayer(), message);
     }
 
@@ -246,7 +247,7 @@ public interface CommandContext<T extends CommandSender> {
      * @param message The message to send if type does not match
      * @return Context
      */
-    default CommandContext<T> assertArgument(int index, @NotNull Class<?> type, @NotNull String message) {
+    default CommandContext<T> assertArgument(int index, @NotNull Class<?> type, @NotNull Component message) {
         return assertion(validateArgument(index, type) != null, message);
     }
 
@@ -259,7 +260,7 @@ public interface CommandContext<T extends CommandSender> {
      */
     default CommandContext<T> assertArgument(int index, @NotNull Class<?> type) {
         Optional<String> arg = rawArg(index);
-        return assertArgument(index, type, ChatColor.RED + "Invalid or missing argument at position " + index + (arg.isPresent() ? ": " + ChatColor.YELLOW + arg.get() : "!"));
+        return assertArgument(index, type, Component.text("Invalid or missing argument at position " + index).color(NamedTextColor.RED).append(arg.isPresent() ? Component.text(": ").append(Component.text(arg.get()).color(NamedTextColor.YELLOW)) : Component.text("!")));
     }
 
 }

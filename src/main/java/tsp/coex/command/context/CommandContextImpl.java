@@ -1,6 +1,6 @@
 package tsp.coex.command.context;
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
@@ -98,7 +98,7 @@ public class CommandContextImpl<T extends CommandSender> implements CommandConte
     }
 
     @Override
-    public CommandContext<T> assertion(boolean assertion, @Nullable String failureMessage) {
+    public CommandContext<T> assertion(boolean assertion, @Nullable Component failureMessage) {
         if (assertion) {
             return this;
         } else {
@@ -133,7 +133,7 @@ public class CommandContextImpl<T extends CommandSender> implements CommandConte
     }
 
     @Override
-    public <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable String failureMessage) {
+    public <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable Component failureMessage) {
         Optional<U> result = ArgumentParsers.INSTANCE.find(type).orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type)).parse(rawArg(index).orElse(""));
         if (result.isPresent()) {
             return result.get();
@@ -144,15 +144,18 @@ public class CommandContextImpl<T extends CommandSender> implements CommandConte
     }
 
     @Override
-    public <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable UnaryOperator<@Nullable String> failureMessage) {
+    public <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable UnaryOperator<@Nullable Component> failureMessage) {
         Optional<U> result = ArgumentParsers.INSTANCE.find(type).orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type)).parse(rawArg(index).orElse(""));
         if (result.isPresent()) {
             return result.get();
         } else {
             if (failureMessage != null) {
-                String arg = failureMessage.apply(rawArg(index).orElse(null));
-                if (arg != null) {
-                    reply(arg);
+                Optional<String> raw = rawArg(index);
+                if (raw.isPresent()) {
+                    Component arg = failureMessage.apply(Component.text(raw.orElse(null)));
+                    if (arg != null) {
+                        reply(arg);
+                    }
                 }
             }
             throw new CommandInterruptException();
@@ -160,8 +163,8 @@ public class CommandContextImpl<T extends CommandSender> implements CommandConte
     }
 
     @Override
-    public CommandContext<T> reply(@NotNull String message) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    public CommandContext<T> reply(@NotNull Component message) {
+        sender.sendMessage(message);
         return this;
     }
 

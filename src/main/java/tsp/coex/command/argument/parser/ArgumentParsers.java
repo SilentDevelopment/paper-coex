@@ -1,5 +1,7 @@
 package tsp.coex.command.argument.parser;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -66,6 +68,7 @@ public final class ArgumentParsers {
         });
         register(World.class, s -> Optional.ofNullable(Bukkit.getWorld(s)));
         register(Duration.class, DurationParser::parseSafely);
+        register(Component.class, s -> Optional.of(MiniMessage.miniMessage().deserialize(s)));
     }
 
     @NotNull
