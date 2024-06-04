@@ -108,6 +108,14 @@ public interface CommandContext<T extends CommandSender> {
 
     boolean isRemoteConsole();
 
+    boolean isArgument(int index, @NotNull Class<?> type);
+
+    <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable String failureMessage);
+
+    default <U> U validateArgument(int index, @NotNull Class<U> type) {
+        return validateArgument(index, type, null);
+    }
+
     // Assertions
 
     /**
@@ -238,12 +246,7 @@ public interface CommandContext<T extends CommandSender> {
      * @return Context
      */
     default CommandContext<T> assertArgument(int index, @NotNull Class<?> type, @NotNull String message) {
-        return assertion(
-                ArgumentParsers.INSTANCE.find(type)
-                        .orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type))
-                        .parse(rawArg(index).orElse("")).isPresent(),
-                message
-        );
+        return assertion(validateArgument(index, type) != null, message);
     }
 
     /**
@@ -255,12 +258,7 @@ public interface CommandContext<T extends CommandSender> {
      */
     default CommandContext<T> assertArgument(int index, @NotNull Class<?> type) {
         Optional<String> arg = rawArg(index);
-        return assertion(
-                ArgumentParsers.INSTANCE.find(type)
-                        .orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type))
-                        .parse(arg.orElse("")).isPresent(), // Parsers are expected to handle empty strings as a failure.
-                ChatColor.RED + "Invalid or missing argument at position " + index + (arg.isPresent() ? ": " + ChatColor.YELLOW + arg.get() : "!")
-        );
+        return assertArgument(index, type, ChatColor.RED + "Invalid or missing argument at position " + index + (arg.isPresent() ? ": " + ChatColor.YELLOW + arg.get() : "!"));
     }
 
 }

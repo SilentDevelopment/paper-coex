@@ -11,6 +11,7 @@ import tsp.coex.command.Command;
 import tsp.coex.CommandInterruptException;
 import tsp.coex.command.argument.Argument;
 import tsp.coex.command.argument.ArgumentImpl;
+import tsp.coex.command.argument.parser.ArgumentParsers;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -123,6 +124,22 @@ public class CommandContextImpl<T extends CommandSender> implements CommandConte
     @Override
     public boolean isRemoteConsole() {
         return sender instanceof RemoteConsoleCommandSender;
+    }
+
+    @Override
+    public boolean isArgument(int index, @NotNull Class<?> type) {
+        return ArgumentParsers.INSTANCE.find(type).orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type)).parse(rawArg(index).orElse("")).isPresent();
+    }
+
+    @Override
+    public <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable String failureMessage) {
+        Optional<U> result = ArgumentParsers.INSTANCE.find(type).orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type)).parse(rawArg(index).orElse(""));
+        if (result.isPresent()) {
+            return result.get();
+        } else {
+            if (failureMessage != null) reply(failureMessage);
+            throw new CommandInterruptException();
+        }
     }
 
     @Override
