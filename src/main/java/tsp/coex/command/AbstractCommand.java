@@ -1,5 +1,6 @@
 package tsp.coex.command;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,13 +29,13 @@ public abstract class AbstractCommand implements Command {
     @Nullable
     private final String usage;
     @Nullable
-    private final String usageMessage;
+    private final Component usageMessage;
     @Nullable
     private final String permission;
     @Nullable
-    private final String permissionMessage;
+    private final Component permissionMessage;
 
-    public AbstractCommand(@NotNull String name, @Nullable String usage, @Nullable String usageMessage, @Nullable String permission, @Nullable String permissionMessage) {
+    public AbstractCommand(@NotNull String name, @Nullable String usage, @Nullable Component usageMessage, @Nullable String permission, @Nullable Component permissionMessage) {
         this.name = name;
         this.usage = usage;
         this.usageMessage = usageMessage;
@@ -42,11 +43,11 @@ public abstract class AbstractCommand implements Command {
         this.permissionMessage = permissionMessage;
     }
 
-    public AbstractCommand(@NotNull String name, @Nullable String usage, @Nullable String usageMessage, @Nullable String permission) {
+    public AbstractCommand(@NotNull String name, @Nullable String usage, @Nullable Component usageMessage, @Nullable String permission) {
         this(name, usage, usageMessage, permission, null);
     }
 
-    public AbstractCommand(@NotNull String name, @Nullable String usage, @Nullable String usageMessage) {
+    public AbstractCommand(@NotNull String name, @Nullable String usage, @Nullable Component usageMessage) {
         this(name, usage, usageMessage, null, null);
     }
 
@@ -72,7 +73,7 @@ public abstract class AbstractCommand implements Command {
 
     @NotNull
     @Override
-    public Optional<String> getUsageMessage() {
+    public Optional<Component> getUsageMessage() {
         return Optional.ofNullable(usageMessage);
     }
 
@@ -84,7 +85,7 @@ public abstract class AbstractCommand implements Command {
 
     @NotNull
     @Override
-    public Optional<String> getPermissionMessage() {
+    public Optional<Component> getPermissionMessage() {
         return Optional.ofNullable(permissionMessage);
     }
 
@@ -110,7 +111,7 @@ public abstract class AbstractCommand implements Command {
             }
 
             if (args.length < required) {
-                if (usageMessage != null) sender.sendMessage(usageMessage.replace("{usage}", "/" + label + " " + usage));
+                if (usageMessage != null) sender.sendMessage(usageMessage.replaceText(s -> s.matchLiteral("{usage}").replacement("/" + label + " " + usage)));
                 return true;
             }
         }

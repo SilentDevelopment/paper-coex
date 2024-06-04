@@ -1,5 +1,6 @@
 package tsp.coex.command;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -35,7 +36,7 @@ public interface Command extends CommandExecutor, TabCompleter {
      *
      * @return Usage message
      */
-    Optional<String> getUsageMessage();
+    Optional<Component> getUsageMessage();
 
     /**
      * The permission required to execute this command.
@@ -49,7 +50,7 @@ public interface Command extends CommandExecutor, TabCompleter {
      *
      * @return The permission message
      */
-    Optional<String> getPermissionMessage();
+    Optional<Component> getPermissionMessage();
 
     /**
      * The handler.
