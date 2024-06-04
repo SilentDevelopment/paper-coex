@@ -9,12 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tsp.coex.command.Command;
 import tsp.coex.command.argument.Argument;
-import tsp.coex.command.argument.parser.ArgumentParsers;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 /**
  * @author TheSilentPro (Silent)
@@ -112,8 +111,10 @@ public interface CommandContext<T extends CommandSender> {
 
     <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable String failureMessage);
 
+    <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable UnaryOperator<String> failureMessage);
+
     default <U> U validateArgument(int index, @NotNull Class<U> type) {
-        return validateArgument(index, type, null);
+        return validateArgument(index, type, (String) null);
     }
 
     // Assertions

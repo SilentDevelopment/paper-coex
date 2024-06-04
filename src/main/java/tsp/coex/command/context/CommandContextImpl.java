@@ -7,14 +7,15 @@ import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import tsp.coex.command.Command;
 import tsp.coex.CommandInterruptException;
+import tsp.coex.command.Command;
 import tsp.coex.command.argument.Argument;
 import tsp.coex.command.argument.ArgumentImpl;
 import tsp.coex.command.argument.parser.ArgumentParsers;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 /**
  * Implementation of {@link CommandContext}.
@@ -138,6 +139,22 @@ public class CommandContextImpl<T extends CommandSender> implements CommandConte
             return result.get();
         } else {
             if (failureMessage != null) reply(failureMessage);
+            throw new CommandInterruptException();
+        }
+    }
+
+    @Override
+    public <U> U validateArgument(int index, @NotNull Class<U> type, @Nullable UnaryOperator<@Nullable String> failureMessage) {
+        Optional<U> result = ArgumentParsers.INSTANCE.find(type).orElseThrow(() -> new NoSuchElementException("Unable to find ArgumentParser for " + type)).parse(rawArg(index).orElse(""));
+        if (result.isPresent()) {
+            return result.get();
+        } else {
+            if (failureMessage != null) {
+                String arg = failureMessage.apply(rawArg(index).orElse(null));
+                if (arg != null) {
+                    reply(arg);
+                }
+            }
             throw new CommandInterruptException();
         }
     }

@@ -1,11 +1,10 @@
 package tsp.coex.command.argument.parser;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Optional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author TheSilentPro (Silent)
